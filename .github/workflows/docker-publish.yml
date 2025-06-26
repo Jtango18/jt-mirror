@@ -1,0 +1,43 @@
+name: Mirror Specific Docker Images to GHCR
+
+on:
+  workflow_dispatch:  # manual trigger via GitHub Actions tab
+
+jobs:
+  mirror-images:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Pull images from Docker Hub
+        run: |
+          docker pull alpine:3.19
+          docker pull alpine:3.21
+          docker pull alpine:3.22
+          docker pull nginx:1.28
+          docker pull nginx:1.29
+          docker pull nginx:3.22
+
+      - name: Tag images for GHCR
+        run: |
+          docker tag alpine:3.19 ghcr.io/${{ github.repository_owner }}/alpine:3.19
+          docker tag alpine:3.21 ghcr.io/${{ github.repository_owner }}/alpine:3.21
+          docker tag alpine:3.22 ghcr.io/${{ github.repository_owner }}/alpine:3.22
+          docker tag nginx:1.28 ghcr.io/${{ github.repository_owner }}/nginx:1.28
+          docker tag nginx:1.29 ghcr.io/${{ github.repository_owner }}/nginx:1.29
+          docker tag nginx:3.22 ghcr.io/${{ github.repository_owner }}/nginx:3.22
+
+      - name: Push images to GHCR
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/alpine:3.19
+          docker push ghcr.io/${{ github.repository_owner }}/alpine:3.21
+          docker push ghcr.io/${{ github.repository_owner }}/alpine:3.22
+          docker push ghcr.io/${{ github.repository_owner }}/nginx:1.28
+          docker push ghcr.io/${{ github.repository_owner }}/nginx:1.29
+          docker push ghcr.io/${{ github.repository_owner }}/nginx:3.22
