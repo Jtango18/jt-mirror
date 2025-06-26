@@ -22,7 +22,7 @@ jobs:
           docker pull alpine:3.22
           docker pull nginx:1.28
           docker pull nginx:1.29
-          docker pull nginx:3.22
+          docker pull nginx:1.27
 
       - name: Tag images for GHCR
         run: |
@@ -31,7 +31,7 @@ jobs:
           docker tag alpine:3.22 ghcr.io/${{ github.repository_owner }}/alpine:3.22
           docker tag nginx:1.28 ghcr.io/${{ github.repository_owner }}/nginx:1.28
           docker tag nginx:1.29 ghcr.io/${{ github.repository_owner }}/nginx:1.29
-          docker tag nginx:3.22 ghcr.io/${{ github.repository_owner }}/nginx:3.22
+          docker tag nginx:3.22 ghcr.io/${{ github.repository_owner }}/nginx:1.27
 
       - name: Push images to GHCR
         run: |
@@ -40,4 +40,4 @@ jobs:
           docker push ghcr.io/${{ github.repository_owner }}/alpine:3.22
           docker push ghcr.io/${{ github.repository_owner }}/nginx:1.28
           docker push ghcr.io/${{ github.repository_owner }}/nginx:1.29
-          docker push ghcr.io/${{ github.repository_owner }}/nginx:3.22
+          docker push ghcr.io/${{ github.repository_owner }}/nginx:1.27
