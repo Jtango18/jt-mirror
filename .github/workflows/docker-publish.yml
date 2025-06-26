@@ -1,11 +1,27 @@
-name: Mirror Specific Docker Images to GHCR
+name: Mirror Docker Images to GHCR
 
 on:
-  workflow_dispatch:  # manual trigger via GitHub Actions tab
+  workflow_dispatch:
 
 jobs:
   mirror-images:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - image: alpine
+            tag: "3.19"
+          - image: alpine
+            tag: "3.21"
+          - image: alpine
+            tag: "3.22"
+          - image: nginx
+            tag: "1.27"
+          - image: nginx
+            tag: "1.28"
+          - image: nginx
+            tag: "1.29"
 
     steps:
       - name: Check out repository
@@ -15,29 +31,16 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Pull images from Docker Hub
+      - name: Pull image from Docker Hub
         run: |
-          docker pull alpine:3.19
-          docker pull alpine:3.21
-          docker pull alpine:3.22
-          docker pull nginx:1.28
-          docker pull nginx:1.29
-          docker pull nginx:1.27
+          docker pull ${{ matrix.image }}:${{ matrix.tag }}
 
-      - name: Tag images for GHCR
+      - name: Tag image for GHCR
         run: |
-          docker tag alpine:3.19 ghcr.io/${{ github.repository_owner }}/alpine:3.19
-          docker tag alpine:3.21 ghcr.io/${{ github.repository_owner }}/alpine:3.21
-          docker tag alpine:3.22 ghcr.io/${{ github.repository_owner }}/alpine:3.22
-          docker tag nginx:1.28 ghcr.io/${{ github.repository_owner }}/nginx:1.28
-          docker tag nginx:1.29 ghcr.io/${{ github.repository_owner }}/nginx:1.29
-          docker tag nginx:3.22 ghcr.io/${{ github.repository_owner }}/nginx:1.27
+          lower_owner="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+          docker tag ${{ matrix.image }}:${{ matrix.tag }} ghcr.io/$lower_owner/${{ matrix.image }}:${{ matrix.tag }}
 
-      - name: Push images to GHCR
+      - name: Push image to GHCR
         run: |
-          docker push ghcr.io/${{ github.repository_owner }}/alpine:3.19
-          docker push ghcr.io/${{ github.repository_owner }}/alpine:3.21
-          docker push ghcr.io/${{ github.repository_owner }}/alpine:3.22
-          docker push ghcr.io/${{ github.repository_owner }}/nginx:1.28
-          docker push ghcr.io/${{ github.repository_owner }}/nginx:1.29
-          docker push ghcr.io/${{ github.repository_owner }}/nginx:1.27
+          lower_owner="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+          docker push ghcr.io/$lower_owner/${{ matrix.image }}:${{ matrix.tag }}
